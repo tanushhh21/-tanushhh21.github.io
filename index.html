@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanush Kalhan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0b;
+    --bg2: #111110;
+    --surface: #191918;
+    --border: #252524;
+    --text: #e8e4dc;
+    --muted: #7a7770;
+    --accent: #d4a853;
+    --accent2: #e8c07a;
+    --tag-bg: #1e1d1a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 48px;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  nav.scrolled { border-color: var(--border); background: rgba(12,12,11,0.93); backdrop-filter: blur(12px); }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--accent); text-decoration: none; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  section { padding: 100px 0; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+
+  #hero { min-height: 100vh; display: flex; align-items: center; padding-top: 0; position: relative; overflow: hidden; }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.4;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-content { position: relative; z-index: 2; }
+  .hero-tag {
+    display: inline-block; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--accent); padding: 4px 12px; margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+  .hero-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(64px, 9vw, 120px); font-weight: 700; line-height: 0.9; letter-spacing: -0.02em;
+    opacity: 0; animation: fadeUp 0.7s ease 0.35s forwards;
+  }
+  .hero-name em { font-style: italic; color: var(--accent); }
+  .hero-desc {
+    margin-top: 28px; font-size: 13.5px; color: var(--muted); max-width: 500px; line-height: 1.9;
+    opacity: 0; animation: fadeUp 0.7s ease 0.5s forwards;
+  }
+  .hero-desc strong { color: var(--text); font-weight: 400; }
+  .hero-cta { display: flex; gap: 14px; margin-top: 40px; opacity: 0; animation: fadeUp 0.7s ease 0.65s forwards; }
+  .btn {
+    display: inline-block; padding: 10px 24px; font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+    transition: all 0.2s; cursor: pointer; border: none;
+  }
+  .btn-primary { background: var(--accent); color: var(--bg); font-weight: 500; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 48px;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    opacity: 0; animation: fadeIn 1s ease 1.2s forwards;
+  }
+  .scroll-line { width: 40px; height: 1px; background: var(--border); position: relative; overflow: hidden; }
+  .scroll-line::after {
+    content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%;
+    background: var(--accent); animation: scanline 2s ease 1.5s infinite;
+  }
+
+  .section-label {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 56px); font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 52px;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  .ticker-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; padding: 12px 0; background: var(--bg2); }
+  .ticker { display: flex; animation: ticker 22s linear infinite; white-space: nowrap; }
+  .ticker-item { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 32px; display: flex; align-items: center; gap: 12px; }
+  .ticker-item::after { content: '·'; color: var(--accent); }
+
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .about-text p { color: var(--muted); font-size: 13.5px; line-height: 1.95; margin-bottom: 16px; }
+  .about-text p strong { color: var(--text); font-weight: 400; }
+  .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; position: relative; overflow: hidden; }
+  .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; height: 2px; width: 0; background: var(--accent); transition: width 0.4s ease; }
+  .stat-card:hover::after { width: 100%; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  #experience { background: var(--bg2); }
+  .exp-list { display: flex; flex-direction: column; gap: 2px; }
+  .exp-item {
+    border: 1px solid var(--border); background: var(--surface); padding: 30px 34px;
+    display: grid; grid-template-columns: 160px 1fr; gap: 32px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .exp-item:hover { border-color: var(--accent); background: #161614; }
+  .exp-meta { text-align: right; }
+  .exp-date { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+  .exp-type { display: inline-block; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(212,168,83,0.3); padding: 2px 8px; }
+  .exp-role { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .exp-company { font-size: 12px; color: var(--accent); margin-bottom: 12px; letter-spacing: 0.04em; }
+  .exp-desc { font-size: 12.5px; color: var(--muted); line-height: 1.85; }
+  .ongoing-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 6px; animation: pulse 2s ease infinite; vertical-align: middle; }
+
+  .projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+  .project-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 32px;
+    position: relative; overflow: hidden; transition: border-color 0.25s;
+    text-decoration: none; color: inherit; display: block;
+  }
+  .project-card:hover { border-color: var(--accent); }
+  .project-card::before {
+    content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px;
+    background: radial-gradient(circle at top right, rgba(212,168,83,0.08), transparent 70%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .project-card:hover::before { opacity: 1; }
+  .project-card.ongoing { border-color: rgba(212,168,83,0.22); }
+  .project-num { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 16px; }
+  .project-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.25; }
+  .project-desc { font-size: 12.5px; color: var(--muted); line-height: 1.85; margin-bottom: 20px; }
+  .project-desc strong { color: var(--text); font-weight: 400; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; background: var(--tag-bg); border: 1px solid var(--border); color: var(--muted); padding: 3px 9px; }
+  .tag.accent { background: rgba(212,168,83,0.08); border-color: rgba(212,168,83,0.25); color: var(--accent); }
+  .tag.live { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.3); color: #4ade80; }
+  .project-arrow { position: absolute; top: 28px; right: 28px; color: var(--muted); font-size: 18px; transition: color 0.2s, transform 0.2s; }
+  .project-card:hover .project-arrow { color: var(--accent); transform: translate(3px,-3px); }
+
+  #achievements { background: var(--bg2); }
+  .ach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+  .ach-card { background: var(--surface); border: 1px solid var(--border); padding: 28px 30px; transition: border-color 0.2s; }
+  .ach-card:hover { border-color: var(--accent); }
+  .ach-icon { font-size: 22px; margin-bottom: 14px; }
+  .ach-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .ach-desc { font-size: 12px; color: var(--muted); line-height: 1.8; }
+
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .skills-grid.four-col { grid-column: span 3; display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 2px; }
+  .skill-group { background: var(--surface); border: 1px solid var(--border); padding: 28px; }
+  .skill-group.wide { grid-column: span 3; }
+  .skill-group-title { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .skill-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(37,37,36,0.5); font-size: 12px; color: var(--muted); }
+  .skill-item:last-child { border-bottom: none; }
+  .skill-bar { width: 56px; height: 2px; background: var(--border); position: relative; overflow: hidden; }
+  .skill-bar-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--accent); transition: width 1s ease; }
+  .ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .ai-chip {
+    font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: rgba(212,168,83,0.07); border: 1px solid rgba(212,168,83,0.2);
+    color: var(--accent); padding: 5px 12px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .ai-chip:hover { background: rgba(212,168,83,0.14); border-color: rgba(212,168,83,0.4); }
+  .ai-chip.dim { background: var(--tag-bg); border-color: var(--border); color: var(--muted); }
+  .ai-chip.dim:hover { border-color: var(--muted); color: var(--text); }
+
+  #contact { text-align: center; padding: 120px 0; position: relative; overflow: hidden; }
+  #contact::before {
+    content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(212,168,83,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .contact-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(42px, 7vw, 80px); font-weight: 600; line-height: 1.0; letter-spacing: -0.02em; margin-bottom: 24px; }
+  .contact-text em { font-style: italic; color: var(--accent); }
+  .contact-sub { color: var(--muted); font-size: 12.5px; margin-bottom: 40px; }
+  .contact-links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+  footer { border-top: 1px solid var(--border); padding: 24px 48px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 11px; letter-spacing: 0.04em; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scanline { 0% { left: -100%; } 100% { left: 100%; } }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#hero" class="nav-logo">TK</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#achievements">Achievements</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag">CS & AI Sophomore @ Plaksha · AI · Product · Business</div>
+      <h1 class="hero-name">Tanush<br><em>Kalhan</em></h1>
+      <p class="hero-desc">
+        AI that <strong>actually does things</strong>. Products people want to use.
+        Businesses that make sense. I work across all three,
+        from agentic systems and intelligent products to early-stage investing
+        and communities built around <strong>real financial thinking</strong>.
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">See My Work</a>
+        <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll to explore</span>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item">FinTech</span>
+    <span class="ticker-item">Horizontal AI</span>
+    <span class="ticker-item">Consumer Internet</span>
+    <span class="ticker-item">HealthTech</span>
+    <span class="ticker-item">Venture Capital</span>
+    <span class="ticker-item">Machine Learning</span>
+    <span class="ticker-item">Product Thinking</span>
+    <span class="ticker-item">Plaksha University</span>
+    <span class="ticker-item">FinTech</span>
+    <span class="ticker-item">Horizontal AI</span>
+    <span class="ticker-item">Consumer Internet</span>
+    <span class="ticker-item">HealthTech</span>
+    <span class="ticker-item">Venture Capital</span>
+    <span class="ticker-item">Machine Learning</span>
+    <span class="ticker-item">Product Thinking</span>
+    <span class="ticker-item">Plaksha University</span>
+  </div>
+</div>
+
+<section id="about">
+  <div class="container">
+    <div class="section-label">About</div>
+    <div class="reveal" style="max-width: 680px;">
+        <h2 class="section-title">Builder who<br>thinks in <em>systems</em></h2>
+        <p>
+          I'm a <strong>CS + AI sophomore at Plaksha University</strong> obsessed with building things that actually work:
+          agentic pipelines, intelligent products, and systems that turn messy data into real decisions.
+        </p>
+        <p>
+          I'm <strong>Head of Finance at Plaksha Finance Cell</strong>, where I run financial literacy initiatives,
+          market research, and events that have reached 200+ students.
+          I'm also an <strong>Investment Fellow at Campus Fund</strong>, evaluating early-stage startups and backing founders building something real.
+        </p>
+        <p>
+          I move fast, pick up new stacks quickly, and care more about
+          <strong>what ships</strong> than what looks good in a slide deck.
+        </p>
+        <div style="margin-top:28px; display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="https://github.com/tanushhh21" target="_blank" class="btn btn-primary">GitHub ↗</a>
+          <a href="https://linkedin.com/in/tanushkalhan-48b286242" target="_blank" class="btn btn-ghost">LinkedIn ↗</a>
+        </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="container">
+    <div class="section-label">Experience</div>
+    <h2 class="section-title">Where I've<br>been <em>building</em></h2>
+    <div class="exp-list">
+
+      <div class="exp-item reveal">
+        <div class="exp-meta">
+          <div class="exp-date"><span class="ongoing-dot"></span>Jul 2025 – Now</div>
+          <div class="exp-type">Fellowship</div>
+        </div>
+        <div>
+          <div class="exp-role">Investment Fellow</div>
+          <div class="exp-company">Campus Fund, Asia's first student VC</div>
+          <div class="exp-desc">
+            Sourcing and evaluating student-led startups across Asia through rigorous market, product, and founder analysis.
+            Analyzing business models, traction, and competitive dynamics to support investment decisions.
+            Connecting founders to capital, mentorship, and key ecosystem resources.
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item reveal">
+        <div class="exp-meta">
+          <div class="exp-date"><span class="ongoing-dot"></span>Sep 2025 – Now</div>
+          <div class="exp-type">Leadership</div>
+        </div>
+        <div>
+          <div class="exp-role">Head of Finance</div>
+          <div class="exp-company">Plaksha Finance Cell</div>
+          <div class="exp-desc">
+            Overseeing strategy and operations for the finance vertical, leading market analysis,
+            investment framework development, and weekly financial briefs.
+            Driving finance initiatives that engage 200+ students across campus.
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item reveal">
+        <div class="exp-meta">
+          <div class="exp-date">Sep 2024 – Sep 2025</div>
+          <div class="exp-type">Role</div>
+        </div>
+        <div>
+          <div class="exp-role">Financial Analyst</div>
+          <div class="exp-company">Plaksha Finance Cell</div>
+          <div class="exp-desc">
+            Delivered weekly financial insights through briefs, content, and curated events.
+            Organized M&amp;A simulations, Stockathon, Finance Among Us, and guest lectures to
+            strengthen financial literacy across campus.
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item reveal">
+        <div class="exp-meta">
+          <div class="exp-date">Nov – Dec 2023</div>
+          <div class="exp-type">Internship</div>
+        </div>
+        <div>
+          <div class="exp-role">Research Intern</div>
+          <div class="exp-company">Apto.ai</div>
+          <div class="exp-desc">
+            Built a no-code EdTech pilot connecting students with tutors across academics and offline skills.
+            Onboarded ~50 users and validated early product-market fit.
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item reveal">
+        <div class="exp-meta">
+          <div class="exp-date">Sep – Oct 2023</div>
+          <div class="exp-type">Internship</div>
+        </div>
+        <div>
+          <div class="exp-role">Product Intern</div>
+          <div class="exp-company">XR Central</div>
+          <div class="exp-desc">
+            Worked on product, marketing, and customer projects at an AR/VR/XR startup.
+            Supported live client engagements and explored product-market dynamics in emerging tech.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="container">
+    <div class="section-label">Projects</div>
+    <h2 class="section-title">Things I've<br><em>actually</em> built</h2>
+    <div class="projects-grid">
+
+      <div class="project-card ongoing reveal">
+        <div class="project-num"><span class="ongoing-dot"></span>Ongoing · AI × Finance</div>
+        <div class="project-title">Barclays Hack-O-Hire 2026, Finalist</div>
+        <div class="project-desc">
+          Made it to the finals of Barclays Hack-O-Hire 2026 with Team GigScore.
+          Heading to the Barclays Gurugram campus for the finale this month.
+          Details under wraps for now.
+        </div>
+        <div class="project-tags">
+          <span class="tag live">Finalist</span>
+          <span class="tag accent">Barclays 2026</span>
+          <span class="tag">Gurugram Finale</span>
+        </div>
+      </div>
+
+      <a href="https://github.com/tanushhh21" target="_blank" class="project-card reveal">
+        <div class="project-arrow">↗</div>
+        <div class="project-num">02 · ML Research</div>
+        <div class="project-title">GDAO: Gradient Direction Alignment Optimizer</div>
+        <div class="project-desc">
+          Co-developed a direction-aware optimizer achieving up to <strong>10× faster convergence vs Adam</strong>.
+          Validated on 6 benchmarks (convex + non-convex), hitting 0.978 MNIST test accuracy,
+          strong stability on oscillatory loss landscapes.
+        </div>
+        <div class="project-tags">
+          <span class="tag accent">Research</span>
+          <span class="tag">Optimizer</span>
+          <span class="tag">PyTorch</span>
+          <span class="tag">6 Benchmarks</span>
+        </div>
+      </a>
+
+      <a href="https://github.com/tanushhh21" target="_blank" class="project-card reveal">
+        <div class="project-arrow">↗</div>
+        <div class="project-num">03 · FinTech · May–Jun 2025</div>
+        <div class="project-title">MoneyMate</div>
+        <div class="project-desc">
+          Student-focused personal finance platform with end-to-end budgeting,
+          spending analytics, a Financial Health Score, recurring payment tracking,
+          and goal-based saving. Built around behavioral nudges and intuitive data viz
+          to make financial literacy actually stick.
+        </div>
+        <div class="project-tags">
+          <span class="tag">Python</span>
+          <span class="tag">Personal Finance</span>
+          <span class="tag">Data Viz</span>
+          <span class="tag">Behavioral Design</span>
+        </div>
+      </a>
+
+      <a href="https://github.com/tanushhh21/credit-risk-ml-system" target="_blank" class="project-card reveal">
+        <div class="project-arrow">↗</div>
+        <div class="project-num">04 · ML × FinTech · Agentic AI</div>
+        <div class="project-title">Credit Risk Decisioning Engine</div>
+        <div class="project-desc">
+          End-to-end credit risk system on 2.2M loans with calibrated probability of default
+          and cost-sensitive thresholds. Layered a <strong>constrained agentic LLM</strong> (Ollama) on top of SHAP outputs
+          to auto-generate regulator-ready explanations, with prompt guardrails preventing hallucination
+          or decision override. LLM assists transparency, ML makes every call.
+        </div>
+        <div class="project-tags">
+          <span class="tag accent">Agentic LLM</span>
+          <span class="tag">XGBoost</span>
+          <span class="tag">SHAP</span>
+          <span class="tag">Ollama</span>
+          <span class="tag">Python</span>
+        </div>
+      </a>
+
+      <div class="project-card reveal">
+        <div class="project-arrow">↗</div>
+        <div class="project-num"><span class="ongoing-dot"></span>Ongoing · Agentic AI</div>
+        <div class="project-title">Agentic AI Builds: Vibe Coding Lab</div>
+        <div class="project-desc">
+          Shipping various agents and agentic systems through vibe coding, moving fast from idea to working product.
+          Multi-agent workflows, RAG pipelines, tool-use agents, automation systems, and LLM-powered micro-apps.
+          Less boilerplate, more building.
+        </div>
+        <div class="project-tags">
+          <span class="tag accent">Agentic AI</span>
+          <span class="tag">Multi-Agent</span>
+          <span class="tag">RAG</span>
+          <span class="tag">LLMs</span>
+          <span class="tag">Vibe Coding</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal" style="grid-column: span 2;">
+        <div class="project-num">07 · Climate × ML · Machine Learning Course</div>
+        <div class="project-title">Punjab Stubble Burn Prediction Pipeline</div>
+        <div class="project-desc">
+          Spatio-temporal ML pipeline predicting stubble fire events across 23 Punjab districts at 7km × 1-week resolution.
+          NASA FIRMS + MOD13Q1 NDVI data, XGBoost + LSTM hybrid. Built as part of the Machine Learning course at Plaksha University.
+        </div>
+        <div class="project-tags" style="margin-top:0;">
+          <span class="tag">NASA FIRMS</span>
+          <span class="tag">NDVI</span>
+          <span class="tag">LSTM</span>
+          <span class="tag">XGBoost</span>
+          <span class="tag">Remote Sensing</span>
+          <span class="tag">23 Districts</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="achievements">
+  <div class="container">
+    <div class="section-label">Achievements</div>
+    <h2 class="section-title">Recognition &amp;<br><em>milestones</em></h2>
+    <div class="ach-grid reveal">
+      <div class="ach-card" style="border-color: rgba(74,222,128,0.25); background: #121714;">
+        <div class="ach-icon">🏦</div>
+        <div class="ach-title" style="color: #4ade80;">Finalist, Barclays Hack-O-Hire 2026</div>
+        <div class="ach-desc">Selected as a finalist out of hundreds of teams nationwide. Heading to the Barclays Gurugram campus this month for the live finale with Team GigScore.</div>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">🏆</div>
+        <div class="ach-title">Meritorious Scholar, Plaksha University</div>
+        <div class="ach-desc">50% merit-based scholarship for academic excellence and leadership potential. One of the top performers in the incoming cohort.</div>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">🌍</div>
+        <div class="ach-title">Top 500 Worldwide, YTBC 2021</div>
+        <div class="ach-desc">Recognised globally for an EdTech startup pitch at the Young Turks Business Challenge, demonstrating real-world innovation and impact.</div>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">📘</div>
+        <div class="ach-title">Scholar's Badge, CBSE Class 12</div>
+        <div class="ach-desc">Outstanding academic performance at DPS Bangalore North. 95% in CBSE boards.</div>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">🎖️</div>
+        <div class="ach-title">Scholar's Badge + Student Council, Amity</div>
+        <div class="ach-desc">3-year student council member and academic scholar at Amity International School, Sector 46 Gurgaon. 93.4% in Class 10.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills" style="background:var(--bg);">
+  <div class="container">
+    <div class="section-label">Skills</div>
+    <h2 class="section-title">What I work<br>with <em>day-to-day</em></h2>
+
+    <!-- Agentic AI full-width hero row -->
+    <div class="reveal" style="margin-bottom:2px;">
+      <div class="skill-group" style="border-color: rgba(212,168,83,0.3); background: #141412;">
+        <div class="skill-group-title" style="display:flex; align-items:center; gap:10px;">
+          <span class="ongoing-dot"></span> Agentic AI &amp; LLMs
+        </div>
+        <p style="font-size:12.5px; color:var(--muted); line-height:1.85; margin-bottom:20px; max-width:780px;">
+          Building systems where LLMs don't just respond, they <strong style="color:var(--text); font-weight:400;">reason, plan, and act</strong>.
+          I've worked across the full agentic stack: tool use, memory, multi-agent orchestration, RAG pipelines,
+          prompt engineering, and constrained LLM layers for responsible AI output.
+          Applied in FinTech (credit explainability), EdTech (tutoring pilots), and research contexts.
+        </p>
+        <div class="ai-chips">
+          <span class="ai-chip">Agentic Pipelines</span>
+          <span class="ai-chip">Multi-Agent Orchestration</span>
+          <span class="ai-chip">RAG</span>
+          <span class="ai-chip">Tool Use / Function Calling</span>
+          <span class="ai-chip">LLM Memory &amp; State</span>
+          <span class="ai-chip">Prompt Engineering</span>
+          <span class="ai-chip">Constrained LLM Output</span>
+          <span class="ai-chip">Ollama (Local LLMs)</span>
+          <span class="ai-chip dim">LangChain</span>
+          <span class="ai-chip dim">OpenAI API</span>
+          <span class="ai-chip dim">Anthropic API</span>
+          <span class="ai-chip dim">Relevance AI</span>
+          <span class="ai-chip dim">n8n / No-code Agents</span>
+          <span class="ai-chip dim">Evals &amp; Red-teaming</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom 3 -->
+    <div class="skills-grid reveal">
+      <div class="skill-group">
+        <div class="skill-group-title">ML Engineering</div>
+        <div class="skill-item">Python <div class="skill-bar"><div class="skill-bar-fill" data-width="90%"></div></div></div>
+        <div class="skill-item">scikit-learn / XGBoost <div class="skill-bar"><div class="skill-bar-fill" data-width="83%"></div></div></div>
+        <div class="skill-item">PyTorch / LSTM <div class="skill-bar"><div class="skill-bar-fill" data-width="72%"></div></div></div>
+        <div class="skill-item">SHAP / Explainability <div class="skill-bar"><div class="skill-bar-fill" data-width="75%"></div></div></div>
+        <div class="skill-item">Data Analysis &amp; Viz <div class="skill-bar"><div class="skill-bar-fill" data-width="86%"></div></div></div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">Engineering</div>
+        <div class="skill-item">SQL <div class="skill-bar"><div class="skill-bar-fill" data-width="74%"></div></div></div>
+        <div class="skill-item">C++ <div class="skill-bar"><div class="skill-bar-fill" data-width="65%"></div></div></div>
+        <div class="skill-item">React / Firebase <div class="skill-bar"><div class="skill-bar-fill" data-width="68%"></div></div></div>
+        <div class="skill-item">Git / GitHub <div class="skill-bar"><div class="skill-bar-fill" data-width="86%"></div></div></div>
+        <div class="skill-item">No-code / Automation <div class="skill-bar"><div class="skill-bar-fill" data-width="82%"></div></div></div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">Business</div>
+        <div class="skill-item">Investment Analysis <div class="skill-bar"><div class="skill-bar-fill" data-width="78%"></div></div></div>
+        <div class="skill-item">Financial Modelling <div class="skill-bar"><div class="skill-bar-fill" data-width="72%"></div></div></div>
+        <div class="skill-item">Product Analytics <div class="skill-bar"><div class="skill-bar-fill" data-width="76%"></div></div></div>
+        <div class="skill-item">Market Research <div class="skill-bar"><div class="skill-bar-fill" data-width="80%"></div></div></div>
+        <div class="skill-item">A/B Testing <div class="skill-bar"><div class="skill-bar-fill" data-width="66%"></div></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="section-label" style="justify-content:center;">Let's Talk</div>
+    <div class="contact-text reveal">Open to <em>real</em><br>conversations.</div>
+    <p class="contact-sub reveal">Internships · Collabs · Interesting ideas</p>
+    <div class="contact-links reveal">
+      <a href="https://github.com/tanushhh21" target="_blank" class="btn btn-primary">GitHub ↗</a>
+      <a href="https://linkedin.com/in/tanushkalhan-48b286242" target="_blank" class="btn btn-ghost">LinkedIn ↗</a>
+      <a href="mailto:kalhan.tanush@gmail.com" class="btn btn-ghost">Email ↗</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Tanush Kalhan · Plaksha University · Class of 2028</span>
+  <span>Built with intent.</span>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  const skillObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting)
+        e.target.querySelectorAll('.skill-bar-fill').forEach(b => b.style.width = b.dataset.width);
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.skill-group').forEach(g => skillObs.observe(g));
+</script>
+</body>
+</html>
