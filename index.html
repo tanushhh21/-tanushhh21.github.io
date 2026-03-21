@@ -638,4 +638,10 @@
   const skillObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting)
-        e.target.querySelectorAll('.skill-bar-fill').forEach(b => b.style.width = b
+        e.target.querySelectorAll('.skill-bar-fill').forEach(b => b.style.width = b.dataset.width);
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.skill-group').forEach(g => skillObs.observe(g));
+</script>
+</body>
+</html>
